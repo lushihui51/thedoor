@@ -62,7 +62,7 @@ export default function AddMeetingForm() {
                     {/* options: pending, reached out, scheduled, completed */}
                 </div>
                 <button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Adding...' : 'Add Contact'}
+                    {isSubmitting ? 'Adding...' : 'Add Meeting'}
                 </button>
                 {formState.error && <p>Error: {formState.error.message}</p>}
                 {formState.success && <p>Meeting added successfully!</p>}
