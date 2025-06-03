@@ -17,7 +17,8 @@ export default function AddNewContactForm() {
             await addDoc(collection(db, 'contacts'), {
                 ...contactData,
                 lastMet: null,
-                nextScheduledMeeting: null
+                nextScheduledMeeting: null,
+                meetings: []
             });
 
             setFormState({ success: true })
@@ -32,7 +33,6 @@ export default function AddNewContactForm() {
     return (
         <div>
             <form onSubmit={handleSubmit}>
-                {/* Your existing form fields stay the same */}
                 <div>
                     <label htmlFor="firstName">First Name:</label>
                     <input id="firstName" name="firstName" />
