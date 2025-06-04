@@ -1,23 +1,36 @@
-import { addDoc, collection } from 'firebase/firestore';
-import React, { useState } from 'react';
+import { addDoc, arrayUnion, collection, doc, updateDoc } from 'firebase/firestore';
+import { useState } from 'react';
 import { db } from './firebase';
+import SearchContact from './SearchContact';
 
-export default function AddMeetingForm() {
+export default function AddNewMeetingForm() {
     const [formState, setFormState] = useState({ success: false, error: false });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [attendees, setAttendees] = useState([]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setFormState({ success: false, error: null });
 
         const formData = new FormData(e.target);
         const meetingData = Object.fromEntries(formData);
 
         try {
-            await addDoc(collection(db, 'meetings'), {
-                ...meetingData
+            const meetingRef = await addDoc(collection(db, 'meetings'), {
+                ...meetingData,
+                attendees: attendees.map(attendee => attendee.id)
             });
-            setFormState({ success: true })
+
+            for (const attendee of attendees) {
+                await updateDoc(doc(db, 'contacts', attendee.id), {
+                    meetings: arrayUnion(meetingRef.id)
+                })
+            }
+
+            setFormState({ success: true });
+            setAttendees([]);
+            e.target.reset();
         } catch (error) {
             setFormState({ error: { message: error.message } });
         } finally {
@@ -25,12 +38,29 @@ export default function AddMeetingForm() {
         }
     };
 
+    const handleSelectContact = (contact) => {
+        setAttendees(prevAttendees => {
+            if (prevAttendees.some(attendee => attendee.id === contact.id)) {
+                return prevAttendees;
+            }
+            return [...prevAttendees, contact]
+        });
+    }
+
+    const handleDeselectContact = (contact) => {
+        setAttendees(prevAttendees =>
+            prevAttendees.filter(attendee => attendee.id !== contact.id)
+        )
+    }
+
     return (
         <div>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label htmlFor="name">Name:</label>
-                    <input id="name" name="name" />
+                    {attendees.map(attendee => {
+                        return <button key={attendee.id} type='button' onClick={() => handleDeselectContact(attendee)}>{`${attendee.firstName} ${attendee.lastName}`}</button>
+                    })}
+                    <SearchContact handleSelectContact={handleSelectContact} />
                 </div>
                 <div>
                     <label htmlFor="dateReachedOut">Date reached out:</label>
