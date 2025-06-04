@@ -2,7 +2,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "./firebase";
 
-export default function SearchContact() {
+export default function SearchContact({ handleSelectContact }) {
     const [contacts, setContacts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -42,11 +42,6 @@ export default function SearchContact() {
             role.includes(searchLower);
     })
 
-    const handleSelectContact = (contact) => {
-        console.log('Selected contact:', contact);
-        // Pass this to a parent component or handle it here
-    };
-
     const clearSearch = () => {
         setSearchTerm('');
     };
@@ -55,6 +50,7 @@ export default function SearchContact() {
         <div>
             {/* Search Input */}
             <input
+                id="searchField"
                 type="text"
                 placeholder="Search by name, company, email, or role..."
                 value={searchTerm}
@@ -63,14 +59,13 @@ export default function SearchContact() {
             {/* Search Status */}
             <div>
                 {searchTerm ? (
-                    <span>Found {filterdContacts.length} contact{filterdContacts.length == 1 ? 's' : ''}</span>) :
+                    <span>Found {filterdContacts.length} contact{filterdContacts.length === 1 ? 's' : ''}</span>) :
                     <span>Showing all {contacts.length} contacts</span>}
             </div>
             {/* Search Results */}
             <div>
                 {isLoading ? (<p>Fetching...</p>) : filterdContacts.length === 0 ? (<p>No contacts found</p>) : filterdContacts.map(contact => {
-                    console.log(contact.firstName);
-                    return <p key={contact.id}>{`${contact.firstName} ${contact.lastName}`}</p>
+                    return <button key={contact.id} type="button" onClick={() => handleSelectContact(contact)}>{`${contact.firstName} ${contact.lastName}`}</button>
                 })}
             </div>
         </div>
