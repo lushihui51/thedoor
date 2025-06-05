@@ -5,7 +5,7 @@ import { db } from "./firebase";
 export default function SearchContact({ handleSelectContact }) {
     const [contacts, setContacts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchContacts = async () => {
